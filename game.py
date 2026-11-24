@@ -51,6 +51,7 @@ class Game:
         self.flag = GoalFlag(FLAG_POS)
         self.total_coins = len(self.coins.sprites())
         self.score = 0
+        self.lives = 3
         self.camera_x = 0.0
         self.state = PLAYING
 
@@ -101,7 +102,11 @@ class Game:
                 self.player.vel_y = -STOMP_BOUNCE
                 self.score += STOMP_SCORE
             else:
-                self.state = DEAD
+                self.lives -= 1
+                if self.lives <= 0:
+                    self.state = DEAD
+                else:
+                    self.player = Player(PLAYER_START)
                 return
 
         # Goal flag
@@ -111,7 +116,12 @@ class Game:
 
         # Fell into a pit
         if self.player.rect.top > SCREEN_HEIGHT + 60:
-            self.state = DEAD
+            self.lives -= 1
+            if self.lives <= 0:
+                self.state = DEAD
+            else:
+                self.player = Player(PLAYER_START)
+                self.camera_x = 0
 
     def update_camera(self):
         target = self.player.rect.centerx - SCREEN_WIDTH // 2
@@ -155,6 +165,8 @@ class Game:
         )
         self.screen.blit(score_text, (12, 10))
         self.screen.blit(coins_text, (SCREEN_WIDTH - coins_text.get_width() - 12, 10))
+        lives_text = self.font.render(f"Lives: {self.lives}", True, TEXT_COLOR)
+        self.screen.blit(lives_text, (12,40))
 
     def draw_overlay(self):
         overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
